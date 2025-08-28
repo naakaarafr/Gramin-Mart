@@ -2,41 +2,59 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Kisan Marketplace Design System - Agricultural theme with earthy tones */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 45 20% 98%;
+    --foreground: 120 15% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 120 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 120 15% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Deep forest green representing agriculture */
+    --primary: 120 40% 25%;
+    --primary-foreground: 0 0% 98%;
+    --primary-glow: 120 35% 35%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    /* Secondary - Warm earth orange for prosperity */
+    --secondary: 30 85% 55%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-glow: 30 80% 65%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    /* Muted - Soft sage green for backgrounds */
+    --muted: 100 15% 95%;
+    --muted-foreground: 120 10% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    /* Accent - Golden yellow for highlights */
+    --accent: 45 90% 60%;
+    --accent-foreground: 120 15% 15%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 100 10% 88%;
+    --input: 100 10% 88%;
+    --ring: 120 40% 25%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Agricultural gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-warm: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary-glow)));
+    --gradient-earth: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
+    
+    /* Custom shadows with natural tones */
+    --shadow-farm: 0 4px 20px -4px hsl(var(--primary) / 0.15);
+    --shadow-product: 0 8px 30px -8px hsl(var(--secondary) / 0.12);
+    --shadow-glow: 0 0 40px hsl(var(--accent) / 0.3);
+
+    /* Smooth transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --sidebar-background: 0 0% 98%;
 
@@ -101,5 +119,39 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .gradient-warm {
+    background: var(--gradient-warm);
+  }
+  
+  .gradient-earth {
+    background: var(--gradient-earth);
+  }
+  
+  .shadow-farm {
+    box-shadow: var(--shadow-farm);
+  }
+  
+  .shadow-product {
+    box-shadow: var(--shadow-product);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
   }
 }
