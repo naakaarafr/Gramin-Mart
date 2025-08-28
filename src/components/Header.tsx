@@ -1,23 +1,45 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, User, MapPin, Bell } from "lucide-react";
+import { Search, ShoppingCart, User, MapPin, Bell, Menu } from "lucide-react";
 
 interface HeaderProps {
   cartItems?: number;
   userType?: 'farmer' | 'customer' | null;
+  onSearch?: (query: string) => void;
+  onCategorySelect?: (category: string) => void;
 }
 
-const Header = ({ cartItems = 0, userType = null }: HeaderProps) => {
+const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSearch = () => {
+    onSearch?.(searchQuery);
+  };
+
+  const handleCategoryClick = (category: string) => {
+    onCategorySelect?.(category.toLowerCase());
+  };
+
+  const handleAuthClick = () => {
+    if (user) {
+      signOut();
+    } else {
+      navigate('/auth');
+    }
+  };
 
   return (
     <header className="bg-card border-b border-border shadow-farm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         {/* Top bar */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
             <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-lg">🌾</span>
             </div>
@@ -43,7 +65,7 @@ const Header = ({ cartItems = 0, userType = null }: HeaderProps) => {
               <Bell className="w-5 h-5" />
             </Button>
 
-            <Button variant="ghost" size="sm" className="relative">
+            <Button variant="ghost" size="sm" className="relative" onClick={() => navigate('/cart')}>
               <ShoppingCart className="w-5 h-5" />
               {cartItems > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
@@ -52,8 +74,11 @@ const Header = ({ cartItems = 0, userType = null }: HeaderProps) => {
               )}
             </Button>
 
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={handleAuthClick}>
               <User className="w-5 h-5" />
+              <span className="ml-2 hidden sm:inline">
+                {user ? 'Logout' : 'Login'}
+              </span>
             </Button>
           </div>
         </div>
@@ -67,10 +92,11 @@ const Header = ({ cartItems = 0, userType = null }: HeaderProps) => {
               placeholder="Search for fresh vegetables, fruits, grains..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               className="pl-10 py-6 text-base"
             />
           </div>
-          <Button className="px-8 py-6 gradient-hero">
+          <Button className="px-8 py-6 gradient-hero" onClick={handleSearch}>
             Search
           </Button>
         </div>
@@ -83,6 +109,7 @@ const Header = ({ cartItems = 0, userType = null }: HeaderProps) => {
               variant="outline"
               size="sm"
               className="whitespace-nowrap transition-smooth hover:bg-primary hover:text-primary-foreground"
+              onClick={() => handleCategoryClick(category.split(' ')[1])}
             >
               {category}
             </Button>

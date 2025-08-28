@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
@@ -6,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Truck, Shield, Headphones, Award } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 // Sample product data
 const sampleProducts = [
@@ -108,29 +112,52 @@ const sampleProducts = [
 ];
 
 const Index = () => {
-  const [cartItems, setCartItems] = useState(0);
   const [activeTab, setActiveTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const { addToCart, totalItems } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleAddToCart = (productId: string) => {
-    setCartItems(prev => prev + 1);
-    // Here you would typically add the product to cart state
-    console.log("Added product to cart:", productId);
+    const product = sampleProducts.find(p => p.id === productId);
+    if (product) {
+      addToCart(product);
+      toast({
+        title: "Added to cart!",
+        description: `${product.name} has been added to your cart.`,
+      });
+    }
   };
 
   const handleToggleWishlist = (productId: string) => {
-    // Here you would typically toggle wishlist state
-    console.log("Toggled wishlist for product:", productId);
+    const product = sampleProducts.find(p => p.id === productId);
+    toast({
+      title: "Wishlist updated!",
+      description: `${product?.name} has been added to your wishlist.`,
+    });
   };
 
-  const filteredProducts = activeTab === "all" 
-    ? sampleProducts 
-    : sampleProducts.filter(product => 
-        product.category.toLowerCase() === activeTab.toLowerCase()
-      );
+  // Filter products based on active tab and search query
+  const filteredProducts = sampleProducts.filter(product => {
+    const matchesCategory = activeTab === "all" || 
+      product.category.toLowerCase() === activeTab.toLowerCase();
+    const matchesSearch = searchQuery === "" || 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.farmer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.farmer.location.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const userType = user?.user_metadata?.user_type || null;
 
   return (
     <div className="min-h-screen bg-background">
-      <Header cartItems={cartItems} userType="customer" />
+      <Header 
+        cartItems={totalItems} 
+        userType={userType} 
+        onSearch={setSearchQuery}
+        onCategorySelect={setActiveTab}
+      />
       
       <main>
         {/* Hero Section */}
@@ -193,25 +220,33 @@ const Index = () => {
               </TabsList>
 
               <TabsContent value={activeTab} className="mt-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {filteredProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      {...product}
-                      onAddToCart={handleAddToCart}
-                      onToggleWishlist={handleToggleWishlist}
-                    />
-                  ))}
-                </div>
+                {filteredProducts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">No products found matching your search.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        {...product}
+                        onAddToCart={handleAddToCart}
+                        onToggleWishlist={handleToggleWishlist}
+                      />
+                    ))}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
 
             {/* Load More */}
-            <div className="text-center mt-12">
-              <Button variant="outline" size="lg">
-                Load More Products
-              </Button>
-            </div>
+            {filteredProducts.length > 0 && (
+              <div className="text-center mt-12">
+                <Button variant="outline" size="lg">
+                  Load More Products
+                </Button>
+              </div>
+            )}
           </div>
         </section>
 
@@ -257,28 +292,28 @@ const Index = () => {
             <div className="space-y-4">
               <h3 className="font-semibold">For Customers</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li>Browse Products</li>
-                <li>Track Orders</li>
-                <li>Customer Support</li>
-                <li>Return Policy</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Browse Products</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Track Orders</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Customer Support</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Return Policy</li>
               </ul>
             </div>
             <div className="space-y-4">
               <h3 className="font-semibold">For Farmers</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li>Join as Farmer</li>
-                <li>Sell Products</li>
-                <li>Farmer Resources</li>
-                <li>Success Stories</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => navigate('/auth')}>Join as Farmer</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Sell Products</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Farmer Resources</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Success Stories</li>
               </ul>
             </div>
             <div className="space-y-4">
               <h3 className="font-semibold">Support</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li>Help Center</li>
-                <li>Contact Us</li>
-                <li>Terms & Conditions</li>
-                <li>Privacy Policy</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Help Center</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Contact Us</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Terms & Conditions</li>
+                <li className="cursor-pointer hover:text-primary-foreground">Privacy Policy</li>
               </ul>
             </div>
           </div>
