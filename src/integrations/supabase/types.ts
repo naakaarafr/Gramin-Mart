@@ -14,7 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      order_items: {
+        Row: {
+          created_at: string
+          farmer_location: string | null
+          farmer_name: string | null
+          id: string
+          order_id: string | null
+          price: number
+          product_id: string
+          product_image: string | null
+          product_name: string
+          quantity: number
+          subtotal: number
+          unit: string
+        }
+        Insert: {
+          created_at?: string
+          farmer_location?: string | null
+          farmer_name?: string | null
+          id?: string
+          order_id?: string | null
+          price: number
+          product_id: string
+          product_image?: string | null
+          product_name: string
+          quantity: number
+          subtotal: number
+          unit: string
+        }
+        Update: {
+          created_at?: string
+          farmer_location?: string | null
+          farmer_name?: string | null
+          id?: string
+          order_id?: string | null
+          price?: number
+          product_id?: string
+          product_image?: string | null
+          product_name?: string
+          quantity?: number
+          subtotal?: number
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          currency: string | null
+          customer_email: string
+          delivery_address: Json | null
+          id: string
+          status: string | null
+          stripe_session_id: string | null
+          total_amount: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          currency?: string | null
+          customer_email: string
+          delivery_address?: Json | null
+          id?: string
+          status?: string | null
+          stripe_session_id?: string | null
+          total_amount: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          currency?: string | null
+          customer_email?: string
+          delivery_address?: Json | null
+          id?: string
+          status?: string | null
+          stripe_session_id?: string | null
+          total_amount?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

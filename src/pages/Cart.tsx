@@ -1,15 +1,64 @@
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
+import { MapPin, Minus, Plus, ShoppingBag, Trash2, CreditCard } from 'lucide-react';
 import Header from '@/components/Header';
+import { toast } from '@/hooks/use-toast';
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+
+  const handleCheckout = async () => {
+    if (items.length === 0) {
+      toast({
+        title: "Cart is empty",
+        description: "Add some products to your cart before checkout.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCheckingOut(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          items: items,
+          totalPrice: totalPrice,
+          deliveryAddress: null // Will be collected in Stripe Checkout
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        // Open Stripe checkout in the same tab
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast({
+        title: "Checkout Failed",
+        description: error instanceof Error ? error.message : "Failed to create checkout session. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -134,8 +183,24 @@ const Cart = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex-col gap-3">
-                <Button className="w-full" size="lg" variant="hero">
-                  🛒 Proceed to Checkout
+                <Button 
+                  className="w-full" 
+                  size="lg" 
+                  variant="hero"
+                  onClick={handleCheckout}
+                  disabled={isCheckingOut}
+                >
+                  {isCheckingOut ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      Proceed to Checkout
+                    </>
+                  )}
                 </Button>
                 <Button variant="outline" className="w-full" onClick={() => navigate('/')}>
                   Continue Shopping
