@@ -114,6 +114,7 @@ const sampleProducts = [
 const Index = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [visibleProducts, setVisibleProducts] = useState(8);
   const { addToCart, totalItems } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -134,6 +135,33 @@ const Index = () => {
     toast({
       title: "Wishlist updated!",
       description: `${product?.name} has been added to your wishlist.`,
+    });
+  };
+
+  const handleLoadMore = () => {
+    setVisibleProducts(prev => prev + 8);
+    toast({
+      title: "Loading more products...",
+      description: "Fetching fresh produce from more farmers!",
+    });
+  };
+
+  const handleSupportFarmers = () => {
+    // Scroll to products or navigate to a support page
+    const productsSection = document.querySelector('[data-section="products"]');
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+    toast({
+      title: "Support Our Farmers!",
+      description: "Every purchase helps farming families across India.",
+    });
+  };
+
+  const handleReadStories = () => {
+    toast({
+      title: "Coming Soon!",
+      description: "Farmer stories section will be available soon.",
     });
   };
 
@@ -200,7 +228,7 @@ const Index = () => {
         </section>
 
         {/* Products Section */}
-        <section className="py-16">
+        <section className="py-16" data-section="products">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Fresh from Farms</h2>
@@ -226,7 +254,7 @@ const Index = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    {filteredProducts.map((product) => (
+                    {filteredProducts.slice(0, visibleProducts).map((product) => (
                       <ProductCard
                         key={product.id}
                         {...product}
@@ -240,10 +268,10 @@ const Index = () => {
             </Tabs>
 
             {/* Load More */}
-            {filteredProducts.length > 0 && (
+            {filteredProducts.length > visibleProducts && (
               <div className="text-center mt-12">
-                <Button variant="outline" size="lg">
-                  Load More Products
+                <Button variant="outline" size="lg" onClick={handleLoadMore}>
+                  Load More Products ({filteredProducts.length - visibleProducts} remaining)
                 </Button>
               </div>
             )}
@@ -263,10 +291,10 @@ const Index = () => {
                 who are making a difference in rural communities.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="hero">
+                <Button variant="hero" onClick={handleSupportFarmers}>
                   🤝 Support Farmers
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={handleReadStories}>
                   📖 Read Their Stories
                 </Button>
               </div>
@@ -292,28 +320,54 @@ const Index = () => {
             <div className="space-y-4">
               <h3 className="font-semibold">For Customers</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li className="cursor-pointer hover:text-primary-foreground">Browse Products</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Track Orders</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Customer Support</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Return Policy</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => {
+                  const productsSection = document.querySelector('[data-section="products"]');
+                  if (productsSection) {
+                    productsSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}>Browse Products</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => navigate('/cart')}>Track Orders</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
+                  title: "Customer Support",
+                  description: "Call us at 1800-KISAN-1 or email support@kisanmarketplace.in"
+                })}>Customer Support</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
+                  title: "Return Policy",
+                  description: "100% satisfaction guarantee with easy returns within 24 hours."
+                })}>Return Policy</li>
               </ul>
             </div>
             <div className="space-y-4">
               <h3 className="font-semibold">For Farmers</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
                 <li className="cursor-pointer hover:text-primary-foreground" onClick={() => navigate('/auth')}>Join as Farmer</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Sell Products</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Farmer Resources</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Success Stories</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => navigate('/auth')}>Sell Products</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
+                  title: "Farmer Resources",
+                  description: "Agricultural guides, weather updates, and market insights coming soon!"
+                })}>Farmer Resources</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={handleReadStories}>Success Stories</li>
               </ul>
             </div>
             <div className="space-y-4">
               <h3 className="font-semibold">Support</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
-                <li className="cursor-pointer hover:text-primary-foreground">Help Center</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Contact Us</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Terms & Conditions</li>
-                <li className="cursor-pointer hover:text-primary-foreground">Privacy Policy</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
+                  title: "Help Center",
+                  description: "FAQs and guides available at help.kisanmarketplace.in"
+                })}>Help Center</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
+                  title: "Contact Us",
+                  description: "📞 1800-KISAN-1 | 📧 support@kisanmarketplace.in"
+                })}>Contact Us</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
+                  title: "Terms & Conditions",
+                  description: "Legal terms and platform policies will be displayed here."
+                })}>Terms & Conditions</li>
+                <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
+                  title: "Privacy Policy",
+                  description: "Your data privacy and security information."
+                })}>Privacy Policy</li>
               </ul>
             </div>
           </div>

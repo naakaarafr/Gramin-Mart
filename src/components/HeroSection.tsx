@@ -1,8 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import heroImage from "@/assets/hero-marketplace.jpg";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const handleShopNow = () => {
+    // Scroll to products section
+    const productsSection = document.querySelector('[data-section="products"]');
+    if (productsSection) {
+      productsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleJoinAsFarmer = () => {
+    navigate('/auth');
+  };
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -45,10 +59,10 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-            <Button size="lg" variant="hero">
+            <Button size="lg" variant="hero" onClick={handleShopNow}>
               🛒 Shop Fresh Produce
             </Button>
-            <Button size="lg" variant="outline" className="bg-card/20 text-primary-foreground border-primary-foreground/30 hover:bg-card/30">
+            <Button size="lg" variant="outline" className="bg-card/20 text-primary-foreground border-primary-foreground/30 hover:bg-card/30" onClick={handleJoinAsFarmer}>
               🧑‍🌾 Join as Farmer
             </Button>
           </div>
