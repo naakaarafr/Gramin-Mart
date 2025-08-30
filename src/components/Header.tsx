@@ -63,7 +63,11 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
             />
             
             {userType && (
-              <Badge variant={userType === 'farmer' ? 'secondary' : 'outline'} className="text-xs">
+              <Badge 
+                variant={userType === 'farmer' ? 'secondary' : 'outline'} 
+                className="text-xs cursor-pointer hover:opacity-80"
+                onClick={() => userType === 'farmer' && navigate('/farmer-dashboard')}
+              >
                 {userType === 'farmer' ? '🧑‍🌾 Farmer' : '🛒 Customer'}
               </Badge>
             )}
