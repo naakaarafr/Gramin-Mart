@@ -106,6 +106,63 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          expiry_date: string | null
+          farmer_id: string
+          farmer_location: string
+          farmer_name: string
+          harvest_date: string | null
+          id: string
+          image_url: string | null
+          name: string
+          organic: boolean | null
+          price: number
+          quantity_available: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          expiry_date?: string | null
+          farmer_id: string
+          farmer_location: string
+          farmer_name: string
+          harvest_date?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          organic?: boolean | null
+          price: number
+          quantity_available?: number
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          expiry_date?: string | null
+          farmer_id?: string
+          farmer_location?: string
+          farmer_name?: string
+          harvest_date?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          organic?: boolean | null
+          price?: number
+          quantity_available?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
