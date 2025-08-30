@@ -1,10 +1,12 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, ShoppingCart, User, MapPin, Bell, Menu } from "lucide-react";
+import { Search, ShoppingCart, User, Bell, Menu } from "lucide-react";
+import LocationSelector from "./LocationSelector";
 
 interface HeaderProps {
   cartItems?: number;
@@ -15,6 +17,7 @@ interface HeaderProps {
 
 const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentLocation, setCurrentLocation] = useState("Mumbai, MH");
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -34,6 +37,10 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
     }
   };
 
+  const handleLocationChange = (newLocation: string) => {
+    setCurrentLocation(newLocation);
+  };
+
   return (
     <header className="bg-card border-b border-border shadow-farm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -50,10 +57,10 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <MapPin className="w-4 h-4" />
-              <span>Mumbai, MH</span>
-            </div>
+            <LocationSelector 
+              currentLocation={currentLocation}
+              onLocationChange={handleLocationChange}
+            />
             
             {userType && (
               <Badge variant={userType === 'farmer' ? 'secondary' : 'outline'} className="text-xs">
