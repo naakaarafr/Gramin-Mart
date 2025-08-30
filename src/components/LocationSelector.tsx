@@ -73,25 +73,65 @@ const LocationSelector = ({ currentLocation, onLocationChange }: LocationSelecto
       
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // For demo purposes, we'll use a major city based on coordinates
-          // In production, you'd use reverse geocoding API
           const { latitude, longitude } = position.coords;
           
-          // Simple logic to determine city based on coordinates (demo only)
+          // More accurate coordinate-based city detection for major Indian cities
           let detectedCity = "Mumbai";
           let detectedState = "Maharashtra";
           
-          // Basic coordinate-based city detection (simplified)
-          if (latitude > 28.4 && latitude < 28.8 && longitude > 77.0 && longitude < 77.4) {
+          // Delhi: 28.7041° N, 77.1025° E
+          if (latitude >= 28.4 && latitude <= 28.9 && longitude >= 76.8 && longitude <= 77.5) {
             detectedCity = "New Delhi";
             detectedState = "Delhi";
-          } else if (latitude > 12.8 && latitude < 13.2 && longitude > 77.4 && longitude < 77.8) {
-            detectedCity = "Bangalore";
-            detectedState = "Karnataka";
-          } else if (latitude > 13.0 && latitude < 13.2 && longitude > 80.1 && longitude < 80.3) {
+          }
+          // Mumbai: 19.0760° N, 72.8777° E  
+          else if (latitude >= 18.9 && latitude <= 19.3 && longitude >= 72.7 && longitude <= 73.0) {
+            detectedCity = "Mumbai";
+            detectedState = "Maharashtra";
+          }
+          // Chennai: 13.0827° N, 80.2707° E
+          else if (latitude >= 12.8 && latitude <= 13.3 && longitude >= 80.0 && longitude <= 80.5) {
             detectedCity = "Chennai";
             detectedState = "Tamil Nadu";
           }
+          // Bangalore: 12.9716° N, 77.5946° E
+          else if (latitude >= 12.8 && latitude <= 13.1 && longitude >= 77.4 && longitude <= 77.8) {
+            detectedCity = "Bangalore";
+            detectedState = "Karnataka";
+          }
+          // Hyderabad: 17.3850° N, 78.4867° E
+          else if (latitude >= 17.2 && latitude <= 17.6 && longitude >= 78.2 && longitude <= 78.7) {
+            detectedCity = "Hyderabad";
+            detectedState = "Telangana";
+          }
+          // Pune: 18.5204° N, 73.8567° E
+          else if (latitude >= 18.4 && latitude <= 18.7 && longitude >= 73.7 && longitude <= 74.0) {
+            detectedCity = "Pune";
+            detectedState = "Maharashtra";
+          }
+          // Ahmedabad: 23.0225° N, 72.5714° E
+          else if (latitude >= 22.9 && latitude <= 23.2 && longitude >= 72.4 && longitude <= 72.7) {
+            detectedCity = "Ahmedabad";
+            detectedState = "Gujarat";
+          }
+          // Kolkata: 22.5726° N, 88.3639° E
+          else if (latitude >= 22.4 && latitude <= 22.7 && longitude >= 88.2 && longitude <= 88.5) {
+            detectedCity = "Kolkata";
+            detectedState = "West Bengal";
+          }
+          // Jaipur: 26.9124° N, 75.7873° E
+          else if (latitude >= 26.8 && latitude <= 27.0 && longitude >= 75.6 && longitude <= 76.0) {
+            detectedCity = "Jaipur";
+            detectedState = "Rajasthan";
+          }
+          // Surat: 21.1702° N, 72.8311° E
+          else if (latitude >= 21.0 && latitude <= 21.3 && longitude >= 72.7 && longitude <= 73.0) {
+            detectedCity = "Surat";
+            detectedState = "Gujarat";
+          }
+          
+          console.log(`Detected coordinates: ${latitude}, ${longitude}`);
+          console.log(`Detected location: ${detectedCity}, ${detectedState}`);
           
           const detectedLocation = `${detectedCity}, ${detectedState}`;
           onLocationChange(detectedLocation);
