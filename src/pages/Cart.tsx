@@ -43,8 +43,8 @@ const Cart = () => {
       }
 
       if (data?.url) {
-        // Open Stripe checkout in the same tab
-        window.location.href = data.url;
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
       } else {
         throw new Error('No checkout URL received');
       }
