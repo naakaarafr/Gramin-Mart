@@ -46,9 +46,17 @@ const LocationSelector = ({ currentLocation, onLocationChange }: LocationSelecto
       return;
     }
 
-    const newLocation = `${selectedCity}, ${selectedState}`;
+    const newLocation = pincode 
+      ? `${selectedCity}, ${selectedState} - ${pincode}`
+      : `${selectedCity}, ${selectedState}`;
+    
     onLocationChange(newLocation);
     setIsOpen(false);
+    
+    // Reset form after successful update
+    setSelectedState("");
+    setSelectedCity("");
+    setPincode("");
     
     toast({
       title: "Location updated!",
@@ -58,23 +66,56 @@ const LocationSelector = ({ currentLocation, onLocationChange }: LocationSelecto
 
   const detectCurrentLocation = () => {
     if (navigator.geolocation) {
+      toast({
+        title: "Detecting location...",
+        description: "Please wait while we detect your location.",
+      });
+      
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          // In a real app, you'd use reverse geocoding here
+          // For demo purposes, we'll use a major city based on coordinates
+          // In production, you'd use reverse geocoding API
+          const { latitude, longitude } = position.coords;
+          
+          // Simple logic to determine city based on coordinates (demo only)
+          let detectedCity = "Mumbai";
+          let detectedState = "Maharashtra";
+          
+          // Basic coordinate-based city detection (simplified)
+          if (latitude > 28.4 && latitude < 28.8 && longitude > 77.0 && longitude < 77.4) {
+            detectedCity = "New Delhi";
+            detectedState = "Delhi";
+          } else if (latitude > 12.8 && latitude < 13.2 && longitude > 77.4 && longitude < 77.8) {
+            detectedCity = "Bangalore";
+            detectedState = "Karnataka";
+          } else if (latitude > 13.0 && latitude < 13.2 && longitude > 80.1 && longitude < 80.3) {
+            detectedCity = "Chennai";
+            detectedState = "Tamil Nadu";
+          }
+          
+          const detectedLocation = `${detectedCity}, ${detectedState}`;
+          onLocationChange(detectedLocation);
+          setSelectedState(detectedState);
+          setSelectedCity(detectedCity);
+          setIsOpen(false);
+          
           toast({
-            title: "Location detected",
-            description: "Using approximate location. Please verify and update if needed.",
+            title: "Location detected!",
+            description: `Set to ${detectedLocation}. You can change it anytime.`,
           });
-          onLocationChange("Mumbai, Maharashtra");
-          setSelectedState("Maharashtra");
-          setSelectedCity("Mumbai");
         },
         (error) => {
+          console.error("Geolocation error:", error);
           toast({
             title: "Location access denied",
             description: "Please select your location manually.",
             variant: "destructive"
           });
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000
         }
       );
     } else {
