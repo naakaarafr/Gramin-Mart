@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Package, TrendingUp, Users, Eye, ArrowLeft, Home } from "lucide-react";
+import { Plus, Edit, Trash2, Package, TrendingUp, Users, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ProductForm from "@/components/ProductForm";
@@ -173,38 +173,17 @@ const FarmerDashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Market
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Farmer Dashboard</h1>
-              <p className="text-muted-foreground">Manage your products and track your farm business</p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Farmer Dashboard</h1>
+            <p className="text-muted-foreground">Manage your products and track your farm business</p>
           </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <Home className="w-4 h-4" />
-              Exit Dashboard
-            </Button>
-            <Button 
-              onClick={() => setShowProductForm(true)}
-              className="gradient-hero"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Product
-            </Button>
-          </div>
+          <Button 
+            onClick={() => setShowProductForm(true)}
+            className="gradient-hero"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Product
+          </Button>
         </div>
 
         {/* Stats Cards */}
