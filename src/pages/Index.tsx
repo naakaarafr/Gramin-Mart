@@ -278,29 +278,85 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Farmer Highlight Section */}
-        <section className="py-16 gradient-earth">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center">
-              <Badge className="mb-4 bg-accent text-accent-foreground">
-                🧑‍🌾 Farmer Spotlight
-              </Badge>
-              <h2 className="text-3xl font-bold mb-6">Meet Our Farmers</h2>
-              <p className="text-muted-foreground mb-8">
-                Every purchase supports hardworking farmers across India. Join thousands of customers 
-                who are making a difference in rural communities.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="hero" onClick={handleSupportFarmers}>
-                  🤝 Support Farmers
-                </Button>
-                <Button variant="outline" onClick={handleReadStories}>
-                  📖 Read Their Stories
-                </Button>
+        {/* Farmer Quick Actions Section - Only for Farmers */}
+        {userType === 'farmer' && (
+          <section className="py-16 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/30 dark:to-emerald-950/30">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto text-center">
+                <Badge className="mb-4 bg-green-600 text-white">
+                  🌱 Farmer Dashboard
+                </Badge>
+                <h2 className="text-3xl font-bold mb-6">Quick Actions</h2>
+                <p className="text-muted-foreground mb-8">
+                  Manage your products and grow your business directly from here.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <Button 
+                    variant="default" 
+                    size="lg" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => navigate('/farmer-dashboard')}
+                  >
+                    <span className="text-2xl">📊</span>
+                    View Dashboard
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="lg" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => {
+                      // Navigate to farmer dashboard with add product mode
+                      navigate('/farmer-dashboard?action=add-product');
+                    }}
+                  >
+                    <span className="text-2xl">➕</span>
+                    Add New Product
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="h-24 flex-col gap-2"
+                    onClick={() => {
+                      toast({
+                        title: "Analytics Coming Soon!",
+                        description: "Detailed sales analytics and insights will be available soon."
+                      });
+                    }}
+                  >
+                    <span className="text-2xl">📈</span>
+                    View Analytics
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
+
+        {/* Customer Farmer Highlight Section */}
+        {userType !== 'farmer' && (
+          <section className="py-16 gradient-earth">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto text-center">
+                <Badge className="mb-4 bg-accent text-accent-foreground">
+                  🧑‍🌾 Farmer Spotlight
+                </Badge>
+                <h2 className="text-3xl font-bold mb-6">Meet Our Farmers</h2>
+                <p className="text-muted-foreground mb-8">
+                  Every purchase supports hardworking farmers across India. Join thousands of customers 
+                  who are making a difference in rural communities.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button variant="hero" onClick={handleSupportFarmers}>
+                    🤝 Support Farmers
+                  </Button>
+                  <Button variant="outline" onClick={handleReadStories}>
+                    📖 Read Their Stories
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </main>
 
       {/* Footer */}

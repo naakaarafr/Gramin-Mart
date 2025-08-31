@@ -27,9 +27,11 @@ interface ProductFormProps {
   product?: Product | null;
   onSave: () => void;
   onCancel: () => void;
+  onSaveAndAddAnother?: () => void;
+  onSaveAndViewDashboard?: () => void;
 }
 
-const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
+const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAndViewDashboard }: ProductFormProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -86,7 +88,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, action: 'save' | 'saveAndAddAnother' | 'saveAndViewDashboard' = 'save') => {
     e.preventDefault();
     if (!user) return;
 
@@ -133,7 +135,29 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
         description: `Product ${product ? 'updated' : 'created'} successfully`
       });
 
-      onSave();
+      // Handle different actions
+      if (action === 'saveAndAddAnother' && onSaveAndAddAnother) {
+        // Reset form for new product
+        setFormData({
+          name: '',
+          description: '',
+          category: '',
+          price: '',
+          unit: 'kg',
+          quantity_available: '',
+          image_url: '',
+          organic: false,
+          harvest_date: '',
+          expiry_date: '',
+          farmer_name: formData.farmer_name, // Keep farmer details
+          farmer_location: formData.farmer_location
+        });
+        onSaveAndAddAnother();
+      } else if (action === 'saveAndViewDashboard' && onSaveAndViewDashboard) {
+        onSaveAndViewDashboard();
+      } else {
+        onSave();
+      }
     } catch (error) {
       console.error('Error saving product:', error);
       toast({
@@ -289,13 +313,63 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
         <Label htmlFor="organic">Organic Product</Label>
       </div>
 
-      <div className="flex gap-4 pt-4">
-        <Button type="submit" disabled={loading} className="flex-1">
-          {loading ? 'Saving...' : (product ? 'Update Product' : 'Add Product')}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-          Cancel
-        </Button>
+      <div className="flex flex-col gap-4 pt-4">
+        {/* Primary action buttons */}
+        <div className="flex gap-3">
+          <Button 
+            type="submit" 
+            disabled={loading} 
+            className="flex-1"
+            onClick={(e) => handleSubmit(e, 'save')}
+          >
+            {loading ? 'Saving...' : (product ? 'Update Product' : 'Save Product')}
+          </Button>
+          {!product && onSaveAndAddAnother && (
+            <Button 
+              type="button" 
+              variant="secondary" 
+              disabled={loading}
+              className="flex-1"
+              onClick={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget.closest('form') as HTMLFormElement;
+                if (form) {
+                  const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                  Object.defineProperty(submitEvent, 'target', { value: form });
+                  handleSubmit(submitEvent as any, 'saveAndAddAnother');
+                }
+              }}
+            >
+              Save & Add Another
+            </Button>
+          )}
+        </div>
+        
+        {/* Secondary action buttons */}
+        <div className="flex gap-3">
+          <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
+            Cancel
+          </Button>
+          {onSaveAndViewDashboard && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              disabled={loading}
+              className="flex-1"
+              onClick={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget.closest('form') as HTMLFormElement;
+                if (form) {
+                  const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                  Object.defineProperty(submitEvent, 'target', { value: form });
+                  handleSubmit(submitEvent as any, 'saveAndViewDashboard');
+                }
+              }}
+            >
+              Save & View Dashboard
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );

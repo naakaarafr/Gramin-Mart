@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,8 @@ interface Product {
 
 const FarmerDashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProductForm, setShowProductForm] = useState(false);
@@ -42,6 +45,14 @@ const FarmerDashboard = () => {
       fetchStats();
     }
   }, [user]);
+
+  useEffect(() => {
+    // Check if user navigated with add-product action
+    const searchParams = new URLSearchParams(location.search);
+    if (searchParams.get('action') === 'add-product') {
+      setShowProductForm(true);
+    }
+  }, [location]);
 
   const fetchProducts = async () => {
     try {
@@ -118,6 +129,25 @@ const FarmerDashboard = () => {
     setEditingProduct(null);
     fetchProducts();
     fetchStats();
+  };
+
+  const handleSaveAndAddAnother = () => {
+    setEditingProduct(null);
+    fetchProducts();
+    fetchStats();
+    // Keep the form open for adding another product
+  };
+
+  const handleSaveAndViewDashboard = () => {
+    setShowProductForm(false);
+    setEditingProduct(null);
+    fetchProducts();
+    fetchStats();
+    // Navigate to main dashboard view (could scroll to products or show analytics)
+    toast({
+      title: "Dashboard Updated",
+      description: "Product saved successfully. Welcome back to your dashboard!"
+    });
   };
 
   const formatCurrency = (amount: number) => {
@@ -282,6 +312,8 @@ const FarmerDashboard = () => {
           <ProductForm
             product={editingProduct}
             onSave={handleProductSaved}
+            onSaveAndAddAnother={handleSaveAndAddAnother}
+            onSaveAndViewDashboard={handleSaveAndViewDashboard}
             onCancel={() => {
               setShowProductForm(false);
               setEditingProduct(null);
