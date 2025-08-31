@@ -173,20 +173,9 @@ const FarmerDashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Market
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Farmer Dashboard</h1>
-              <p className="text-muted-foreground">Manage your products and track your farm business</p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Farmer Dashboard</h1>
+            <p className="text-muted-foreground">Manage your products and track your farm business</p>
           </div>
           <div className="flex gap-3">
             <Button
