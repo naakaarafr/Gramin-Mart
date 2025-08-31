@@ -1,128 +1,104 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Truck, Shield, Headphones, Award } from "lucide-react";
+import { Truck, Shield, Headphones, Award, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
-// Sample product data
-const sampleProducts = [
-  {
-    id: "1",
-    name: "Fresh Organic Tomatoes",
-    price: 45,
-    unit: "kg",
-    image: "https://images.unsplash.com/photo-1546470427-e71b4be8b034?w=400&h=400&fit=crop",
-    farmer: {
-      name: "Rajesh Kumar",
-      location: "Pune, Maharashtra",
-      rating: 4.8
-    },
-    category: "Vegetables",
-    freshness: "Harvested Today",
-    organic: true,
-    inStock: true
-  },
-  {
-    id: "2",
-    name: "Fresh Alphonso Mangoes",
-    price: 180,
-    unit: "dozen",
-    image: "https://images.unsplash.com/photo-1587132137056-bfbf0166836e?w=400&h=400&fit=crop",
-    farmer: {
-      name: "Priya Sharma",
-      location: "Ratnagiri, Maharashtra",
-      rating: 4.9
-    },
-    category: "Fruits",
-    freshness: "2 days old",
-    organic: false,
-    inStock: true
-  },
-  {
-    id: "3",
-    name: "Farm Fresh Spinach",
-    price: 25,
-    unit: "kg",
-    image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop",
-    farmer: {
-      name: "Amit Patel",
-      location: "Surat, Gujarat",
-      rating: 4.7
-    },
-    category: "Vegetables",
-    freshness: "Harvested Today",
-    organic: true,
-    inStock: true
-  },
-  {
-    id: "4",
-    name: "Premium Basmati Rice",
-    price: 95,
-    unit: "kg",
-    image: "https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=400&h=400&fit=crop",
-    farmer: {
-      name: "Suresh Singh",
-      location: "Haryana",
-      rating: 4.6
-    },
-    category: "Grains",
-    freshness: "Fresh Stock",
-    organic: false,
-    inStock: false
-  },
-  {
-    id: "5",
-    name: "Organic Turmeric Powder",
-    price: 120,
-    unit: "kg",
-    image: "https://images.unsplash.com/photo-1615485925600-97bed80ce387?w=400&h=400&fit=crop",
-    farmer: {
-      name: "Lakshmi Devi",
-      location: "Kerala",
-      rating: 4.9
-    },
-    category: "Spices",
-    freshness: "Ground Fresh",
-    organic: true,
-    inStock: true
-  },
-  {
-    id: "6",
-    name: "Fresh Farm Milk",
-    price: 65,
-    unit: "liter",
-    image: "https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&h=400&fit=crop",
-    farmer: {
-      name: "Mohan Reddy",
-      location: "Hyderabad, Telangana",
-      rating: 4.8
-    },
-    category: "Dairy",
-    freshness: "Morning Fresh",
-    organic: false,
-    inStock: true
-  }
-];
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  unit: string;
+  image_url?: string;
+  farmer_name: string;
+  farmer_location: string;
+  category: string;
+  organic: boolean;
+  quantity_available: number;
+  harvest_date?: string;
+  expiry_date?: string;
+  description?: string;
+}
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleProducts, setVisibleProducts] = useState(8);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart, totalItems } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  // Fetch products from Supabase
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .gt('quantity_available', 0)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Error fetching products:', error);
+          toast({
+            title: "Error loading products",
+            description: "Could not load products. Please try again later.",
+            variant: "destructive"
+          });
+          return;
+        }
+
+        setProducts(data || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast({
+          title: "Error loading products",
+          description: "Could not load products. Please try again later.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const handleAddToCart = (productId: string) => {
-    const product = sampleProducts.find(p => p.id === productId);
+    const product = products.find(p => p.id === productId);
     if (product) {
-      addToCart(product);
+      // Transform database product to cart format
+      const cartProduct = {
+        id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        unit: product.unit,
+        image: product.image_url || "https://images.unsplash.com/photo-1546470427-e71b4be8b034?w=400&h=400&fit=crop",
+        farmer: {
+          name: product.farmer_name,
+          location: product.farmer_location,
+          rating: 4.5 // Default rating for now
+        },
+        category: product.category,
+        freshness: product.harvest_date ? 
+          new Date(product.harvest_date).toLocaleDateString() === new Date().toLocaleDateString() ? 
+          "Harvested Today" : `${Math.ceil((new Date().getTime() - new Date(product.harvest_date).getTime()) / (1000 * 3600 * 24))} days old`
+          : "Fresh",
+        organic: product.organic,
+        inStock: product.quantity_available > 0
+      };
+      
+      addToCart(cartProduct);
       toast({
         title: "Added to cart!",
         description: `${product.name} has been added to your cart.`,
@@ -131,7 +107,7 @@ const Index = () => {
   };
 
   const handleToggleWishlist = (productId: string) => {
-    const product = sampleProducts.find(p => p.id === productId);
+    const product = products.find(p => p.id === productId);
     toast({
       title: "Wishlist updated!",
       description: `${product?.name} has been added to your wishlist.`,
@@ -166,13 +142,13 @@ const Index = () => {
   };
 
   // Filter products based on active tab and search query
-  const filteredProducts = sampleProducts.filter(product => {
+  const filteredProducts = products.filter(product => {
     const matchesCategory = activeTab === "all" || 
       product.category.toLowerCase() === activeTab.toLowerCase();
     const matchesSearch = searchQuery === "" || 
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.farmer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.farmer.location.toLowerCase().includes(searchQuery.toLowerCase());
+      product.farmer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.farmer_location.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -248,16 +224,39 @@ const Index = () => {
               </TabsList>
 
               <TabsContent value={activeTab} className="mt-8">
-                {filteredProducts.length === 0 ? (
+                {loading ? (
                   <div className="text-center py-12">
-                    <p className="text-muted-foreground text-lg">No products found matching your search.</p>
+                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
+                    <p className="text-muted-foreground text-lg">Loading fresh products...</p>
+                  </div>
+                ) : filteredProducts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <p className="text-muted-foreground text-lg">
+                      {products.length === 0 ? "No products available yet. Be the first farmer to add products!" : "No products found matching your search."}
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredProducts.slice(0, visibleProducts).map((product) => (
                       <ProductCard
                         key={product.id}
-                        {...product}
+                        id={product.id}
+                        name={product.name}
+                        price={Number(product.price)}
+                        unit={product.unit}
+                        image={product.image_url || "https://images.unsplash.com/photo-1546470427-e71b4be8b034?w=400&h=400&fit=crop"}
+                        farmer={{
+                          name: product.farmer_name,
+                          location: product.farmer_location,
+                          rating: 4.5 // Default rating for now
+                        }}
+                        category={product.category}
+                        freshness={product.harvest_date ? 
+                          new Date(product.harvest_date).toLocaleDateString() === new Date().toLocaleDateString() ? 
+                          "Harvested Today" : `${Math.ceil((new Date().getTime() - new Date(product.harvest_date).getTime()) / (1000 * 3600 * 24))} days old`
+                          : "Fresh"}
+                        organic={product.organic}
+                        inStock={product.quantity_available > 0}
                         onAddToCart={handleAddToCart}
                         onToggleWishlist={handleToggleWishlist}
                       />
