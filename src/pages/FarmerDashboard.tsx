@@ -4,11 +4,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Package, TrendingUp, Users, Eye, ArrowLeft, Home } from "lucide-react";
+import { Plus, Edit, Trash2, Package, TrendingUp, Users, Eye, ArrowLeft, Home, BarChart3, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ProductForm from "@/components/ProductForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 interface Product {
   id: string;
@@ -33,16 +34,22 @@ const FarmerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalRevenue: 0,
     lowStockItems: 0
+  });
+  const [analyticsData, setAnalyticsData] = useState({
+    categoryData: [] as { category: string; count: number; value: number }[],
+    monthlyData: [] as { month: string; products: number; revenue: number }[]
   });
 
   useEffect(() => {
     if (user) {
       fetchProducts();
       fetchStats();
+      fetchAnalyticsData();
     }
   }, [user]);
 
@@ -99,6 +106,65 @@ const FarmerDashboard = () => {
     }
   };
 
+  const fetchAnalyticsData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('category, price, quantity_available, created_at')
+        .eq('farmer_id', user?.id);
+
+      if (error) throw error;
+
+      // Process category data
+      const categoryMap = new Map<string, { count: number; value: number }>();
+      data?.forEach(product => {
+        const existing = categoryMap.get(product.category) || { count: 0, value: 0 };
+        categoryMap.set(product.category, {
+          count: existing.count + 1,
+          value: existing.value + (product.price * product.quantity_available)
+        });
+      });
+
+      const categoryData = Array.from(categoryMap.entries()).map(([category, data]) => ({
+        category,
+        count: data.count,
+        value: data.value
+      }));
+
+      // Process monthly data (last 6 months)
+      const monthlyMap = new Map<string, { products: number; revenue: number }>();
+      const currentDate = new Date();
+      
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+        const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        monthlyMap.set(monthKey, { products: 0, revenue: 0 });
+      }
+
+      data?.forEach(product => {
+        const productDate = new Date(product.created_at);
+        const monthKey = productDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        const existing = monthlyMap.get(monthKey);
+        if (existing) {
+          monthlyMap.set(monthKey, {
+            products: existing.products + 1,
+            revenue: existing.revenue + (product.price * product.quantity_available)
+          });
+        }
+      });
+
+      const monthlyData = Array.from(monthlyMap.entries()).map(([month, data]) => ({
+        month,
+        products: data.products,
+        revenue: data.revenue
+      }));
+
+      setAnalyticsData({ categoryData, monthlyData });
+    } catch (error) {
+      console.error('Error fetching analytics data:', error);
+    }
+  };
+
   const handleDeleteProduct = async (productId: string) => {
     try {
       const { error } = await supabase
@@ -125,16 +191,18 @@ const FarmerDashboard = () => {
   };
 
   const handleProductSaved = () => {
-    setShowProductForm(false);
-    setEditingProduct(null);
-    fetchProducts();
-    fetchStats();
+      setShowProductForm(false);
+      setEditingProduct(null);
+      fetchProducts();
+      fetchStats();
+      fetchAnalyticsData();
   };
 
   const handleSaveAndAddAnother = () => {
     setEditingProduct(null);
     fetchProducts();
     fetchStats();
+    fetchAnalyticsData();
     // Keep the form open for adding another product
   };
 
@@ -143,6 +211,7 @@ const FarmerDashboard = () => {
     setEditingProduct(null);
     fetchProducts();
     fetchStats();
+    fetchAnalyticsData();
     // Navigate to main dashboard view (could scroll to products or show analytics)
     toast({
       title: "Dashboard Updated",
@@ -178,6 +247,14 @@ const FarmerDashboard = () => {
             <p className="text-muted-foreground">Manage your products and track your farm business</p>
           </div>
           <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowAnalytics(!showAnalytics)}
+              className="flex items-center gap-2"
+            >
+              <Eye className="w-4 h-4" />
+              {showAnalytics ? 'View Dashboard' : 'View Analytics'}
+            </Button>
             <Button
               variant="outline"
               onClick={() => navigate('/')}
@@ -228,6 +305,93 @@ const FarmerDashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Analytics Section */}
+        {showAnalytics ? (
+          <div className="space-y-6 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Category Distribution */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    Products by Category
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={analyticsData.categoryData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="category" />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="hsl(var(--primary))" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Category Value Distribution */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5" />
+                    Inventory Value by Category
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={analyticsData.categoryData}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="hsl(var(--primary))"
+                          dataKey="value"
+                          label={({ category, value }) => `${category}: ₹${value.toFixed(0)}`}
+                        >
+                          {analyticsData.categoryData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={`hsl(${120 + index * 60}, 70%, 50%)`} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [`₹${value}`, 'Value']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Monthly Trends */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Monthly Trends (Last 6 Months)
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={analyticsData.monthlyData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis yAxisId="left" />
+                      <YAxis yAxisId="right" orientation="right" />
+                      <Tooltip />
+                      <Bar yAxisId="left" dataKey="products" fill="hsl(var(--primary))" name="Products Added" />
+                      <Bar yAxisId="right" dataKey="revenue" fill="hsl(var(--secondary))" name="Revenue (₹)" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null}
 
         {/* Products List */}
         <Card>
