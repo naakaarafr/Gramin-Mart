@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Package, TrendingUp, Users, Eye, ArrowLeft, Home, BarChart3, Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, Package, TrendingUp, Users, Eye, ArrowLeft, Home, BarChart3, Calendar, ShoppingCart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ProductForm from "@/components/ProductForm";
@@ -42,7 +42,8 @@ const FarmerDashboard = () => {
   });
   const [analyticsData, setAnalyticsData] = useState({
     categoryData: [] as { category: string; count: number; value: number }[],
-    monthlyData: [] as { month: string; products: number; revenue: number }[]
+    monthlyData: [] as { month: string; products: number; revenue: number }[],
+    salesData: [] as { month: string; orders: number; sales: number }[]
   });
 
   useEffect(() => {
@@ -183,7 +184,50 @@ const FarmerDashboard = () => {
         revenue: data.revenue
       }));
 
-      setAnalyticsData({ categoryData, monthlyData });
+      // Fetch sales data from orders
+      const { data: salesData, error: salesError } = await supabase
+        .from('order_items')
+        .select(`
+          created_at,
+          quantity,
+          subtotal,
+          product_id,
+          farmer_name
+        `)
+        .eq('farmer_name', user?.user_metadata?.name || '');
+
+      if (salesError) {
+        console.error('Sales data fetch error:', salesError);
+      }
+
+      // Process sales data
+      const salesMap = new Map<string, { orders: number; sales: number }>();
+      
+      for (let i = 5; i >= 0; i--) {
+        const date = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+        const monthKey = date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        salesMap.set(monthKey, { orders: 0, sales: 0 });
+      }
+
+      salesData?.forEach(sale => {
+        const saleDate = new Date(sale.created_at);
+        const monthKey = saleDate.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+        const existing = salesMap.get(monthKey);
+        if (existing) {
+          salesMap.set(monthKey, {
+            orders: existing.orders + 1,
+            sales: existing.sales + (sale.subtotal || 0)
+          });
+        }
+      });
+
+      const processedSalesData = Array.from(salesMap.entries()).map(([month, data]) => ({
+        month,
+        orders: data.orders,
+        sales: data.sales
+      }));
+
+      setAnalyticsData({ categoryData, monthlyData, salesData: processedSalesData });
     } catch (error) {
       console.error('Error fetching analytics data:', error);
     }
@@ -363,6 +407,42 @@ const FarmerDashboard = () => {
                 </CardContent>
               </Card>
 
+              {/* Sales Performance */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5" />
+                    Sales Performance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {analyticsData.salesData.length > 0 && analyticsData.salesData.some(d => d.orders > 0) ? (
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={analyticsData.salesData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis yAxisId="left" />
+                          <YAxis yAxisId="right" orientation="right" />
+                          <Tooltip formatter={(value, name) => [
+                            name === 'Sales (₹)' ? `₹${Math.round(Number(value))}` : value,
+                            name
+                          ]} />
+                          <Bar yAxisId="left" dataKey="orders" fill="hsl(var(--accent))" name="Orders" />
+                          <Bar yAxisId="right" dataKey="sales" fill="hsl(var(--primary))" name="Sales (₹)" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      No sales data available
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Category Value Distribution */}
               <Card>
                 <CardHeader>
@@ -400,41 +480,41 @@ const FarmerDashboard = () => {
                   )}
                 </CardContent>
               </Card>
-            </div>
 
-            {/* Monthly Trends */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  Monthly Trends (Last 6 Months)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {analyticsData.monthlyData.length > 0 ? (
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={analyticsData.monthlyData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis yAxisId="left" />
-                        <YAxis yAxisId="right" orientation="right" />
-                        <Tooltip formatter={(value, name) => [
-                          name === 'Revenue (₹)' ? `₹${Math.round(Number(value))}` : value,
-                          name
-                        ]} />
-                        <Bar yAxisId="left" dataKey="products" fill="hsl(var(--primary))" name="Products Added" />
-                        <Bar yAxisId="right" dataKey="revenue" fill="hsl(var(--secondary))" name="Revenue (₹)" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                ) : (
-                  <div className="h-64 flex items-center justify-center text-muted-foreground">
-                    No data available
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              {/* Monthly Trends */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5" />
+                    Monthly Trends (Last 6 Months)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {analyticsData.monthlyData.length > 0 ? (
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={analyticsData.monthlyData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" />
+                          <YAxis yAxisId="left" />
+                          <YAxis yAxisId="right" orientation="right" />
+                          <Tooltip formatter={(value, name) => [
+                            name === 'Revenue (₹)' ? `₹${Math.round(Number(value))}` : value,
+                            name
+                          ]} />
+                          <Bar yAxisId="left" dataKey="products" fill="hsl(var(--primary))" name="Products Added" />
+                          <Bar yAxisId="right" dataKey="revenue" fill="hsl(var(--secondary))" name="Revenue (₹)" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      No data available
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </div>
         ) : null}
 
