@@ -41,7 +41,7 @@ const HeroSection = () => {
           <h1 className="text-4xl md:text-6xl font-bold leading-tight">
             Fresh Produce
             <br />
-            <span className="gradient-warm bg-clip-text text-transparent">
+            <span className="text-secondary font-bold">
               Direct from Farm
             </span>
           </h1>

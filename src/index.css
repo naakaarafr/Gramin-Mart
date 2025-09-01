@@ -21,9 +21,9 @@
     --primary-glow: 120 35% 35%;
 
     /* Secondary - Rich golden yellow for prosperity */
-    --secondary: 45 70% 50%;
-    --secondary-foreground: 120 15% 15%;
-    --secondary-glow: 45 60% 60%;
+    --secondary: 45 90% 55%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-glow: 50 95% 65%;
 
     /* Muted - Soft sage green for backgrounds */
     --muted: 100 15% 95%;
