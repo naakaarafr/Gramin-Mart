@@ -50,6 +50,30 @@ const FarmerDashboard = () => {
       fetchProducts();
       fetchStats();
       fetchAnalyticsData();
+      
+      // Set up realtime subscription
+      const channel = supabase
+        .channel('products-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'products',
+            filter: `farmer_id=eq.${user.id}`
+          },
+          () => {
+            // Refetch data when products change
+            fetchProducts();
+            fetchStats();
+            fetchAnalyticsData();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
@@ -319,17 +343,23 @@ const FarmerDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={analyticsData.categoryData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="category" />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="hsl(var(--primary))" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                  {analyticsData.categoryData.length > 0 ? (
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={analyticsData.categoryData}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="category" />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar dataKey="count" fill="hsl(var(--primary))" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      No data available
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
@@ -342,26 +372,32 @@ const FarmerDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={analyticsData.categoryData}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="hsl(var(--primary))"
-                          dataKey="value"
-                          label={({ category, value }) => `${category}: ₹${value.toFixed(0)}`}
-                        >
-                          {analyticsData.categoryData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={`hsl(${120 + index * 60}, 70%, 50%)`} />
-                          ))}
-                        </Pie>
-                        <Tooltip formatter={(value) => [`₹${value}`, 'Value']} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
+                  {analyticsData.categoryData.length > 0 ? (
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={analyticsData.categoryData}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={80}
+                            fill="hsl(var(--primary))"
+                            dataKey="value"
+                            label={({ category, value }) => `${category}: ₹${Math.round(value)}`}
+                          >
+                            {analyticsData.categoryData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={`hsl(${120 + index * 60}, 70%, 50%)`} />
+                            ))}
+                          </Pie>
+                          <Tooltip formatter={(value) => [`₹${Math.round(Number(value))}`, 'Value']} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <div className="h-64 flex items-center justify-center text-muted-foreground">
+                      No data available
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -375,19 +411,28 @@ const FarmerDashboard = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={analyticsData.monthlyData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis yAxisId="left" />
-                      <YAxis yAxisId="right" orientation="right" />
-                      <Tooltip />
-                      <Bar yAxisId="left" dataKey="products" fill="hsl(var(--primary))" name="Products Added" />
-                      <Bar yAxisId="right" dataKey="revenue" fill="hsl(var(--secondary))" name="Revenue (₹)" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                {analyticsData.monthlyData.length > 0 ? (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={analyticsData.monthlyData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <Tooltip formatter={(value, name) => [
+                          name === 'Revenue (₹)' ? `₹${Math.round(Number(value))}` : value,
+                          name
+                        ]} />
+                        <Bar yAxisId="left" dataKey="products" fill="hsl(var(--primary))" name="Products Added" />
+                        <Bar yAxisId="right" dataKey="revenue" fill="hsl(var(--secondary))" name="Revenue (₹)" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-muted-foreground">
+                    No data available
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
