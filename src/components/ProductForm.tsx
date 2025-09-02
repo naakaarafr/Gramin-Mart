@@ -288,7 +288,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
             id="farmer_location"
             value={formData.farmer_location}
             onChange={(e) => handleInputChange('farmer_location', e.target.value)}
-            placeholder="e.g., Mumbai, Maharashtra"
+            placeholder="e.g., Your City, Your State"
           />
         </div>
       </div>

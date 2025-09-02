@@ -17,7 +17,7 @@ interface HeaderProps {
 
 const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentLocation, setCurrentLocation] = useState("Mumbai, MH");
+  const [currentLocation, setCurrentLocation] = useState("Select Location");
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 

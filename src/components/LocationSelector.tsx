@@ -76,8 +76,8 @@ const LocationSelector = ({ currentLocation, onLocationChange }: LocationSelecto
           const { latitude, longitude } = position.coords;
           
           // More accurate coordinate-based city detection for major Indian cities
-          let detectedCity = "Mumbai";
-          let detectedState = "Maharashtra";
+          let detectedCity = "";
+          let detectedState = "";
           
           // Delhi: 28.7041° N, 77.1025° E
           if (latitude >= 28.4 && latitude <= 28.9 && longitude >= 76.8 && longitude <= 77.5) {
@@ -131,18 +131,26 @@ const LocationSelector = ({ currentLocation, onLocationChange }: LocationSelecto
           }
           
           console.log(`Detected coordinates: ${latitude}, ${longitude}`);
-          console.log(`Detected location: ${detectedCity}, ${detectedState}`);
           
-          const detectedLocation = `${detectedCity}, ${detectedState}`;
-          onLocationChange(detectedLocation);
-          setSelectedState(detectedState);
-          setSelectedCity(detectedCity);
-          setIsOpen(false);
-          
-          toast({
-            title: "Location detected!",
-            description: `Set to ${detectedLocation}. You can change it anytime.`,
-          });
+          if (detectedCity && detectedState) {
+            console.log(`Detected location: ${detectedCity}, ${detectedState}`);
+            const detectedLocation = `${detectedCity}, ${detectedState}`;
+            onLocationChange(detectedLocation);
+            setSelectedState(detectedState);
+            setSelectedCity(detectedCity);
+            setIsOpen(false);
+            
+            toast({
+              title: "Location detected!",
+              description: `Set to ${detectedLocation}. You can change it anytime.`,
+            });
+          } else {
+            toast({
+              title: "Location not recognized",
+              description: "Please select your location manually from the list.",
+              variant: "destructive"
+            });
+          }
         },
         (error) => {
           console.error("Geolocation error:", error);
