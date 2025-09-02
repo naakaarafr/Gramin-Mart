@@ -316,10 +316,8 @@ const Index = () => {
                     size="lg" 
                     className="h-24 flex-col gap-2"
                     onClick={() => {
-                      toast({
-                        title: "Analytics Coming Soon!",
-                        description: "Detailed sales analytics and insights will be available soon."
-                      });
+                      // Navigate to farmer dashboard with analytics enabled
+                      navigate('/farmer-dashboard?analytics=true');
                     }}
                   >
                     <span className="text-2xl">📈</span>

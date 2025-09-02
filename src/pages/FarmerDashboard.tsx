@@ -79,10 +79,13 @@ const FarmerDashboard = () => {
   }, [user]);
 
   useEffect(() => {
-    // Check if user navigated with add-product action
+    // Check if user navigated with add-product action or analytics view
     const searchParams = new URLSearchParams(location.search);
     if (searchParams.get('action') === 'add-product') {
       setShowProductForm(true);
+    }
+    if (searchParams.get('analytics') === 'true') {
+      setShowAnalytics(true);
     }
   }, [location]);
 
