@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface LocationSelectorProps {
   currentLocation: string;
@@ -17,6 +18,7 @@ const LocationSelector = ({ currentLocation, onLocationChange }: LocationSelecto
   const [selectedState, setSelectedState] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [pincode, setPincode] = useState("");
+  const { t } = useTranslation();
 
   // Major Indian states and their cities
   const locationData = {

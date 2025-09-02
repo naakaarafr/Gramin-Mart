@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, ShoppingCart, User, Bell, Menu } from "lucide-react";
 import LocationSelector from "./LocationSelector";
+import LanguageSelector from "./LanguageSelector";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface HeaderProps {
   cartItems?: number;
@@ -20,6 +22,7 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
   const [currentLocation, setCurrentLocation] = useState("Select Location");
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSearch = () => {
     onSearch?.(searchQuery);
@@ -51,12 +54,14 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
               <span className="text-primary-foreground font-bold text-lg">🌾</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-primary">Kisan Marketplace</h1>
-              <p className="text-xs text-muted-foreground">खेत से घर तक</p>
+              <h1 className="text-2xl font-bold text-primary">{t('header.title')}</h1>
+              <p className="text-xs text-muted-foreground">{t('header.subtitle')}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
+            <LanguageSelector />
+            
             <LocationSelector 
               currentLocation={currentLocation}
               onLocationChange={handleLocationChange}
@@ -68,7 +73,7 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
                 className="text-xs cursor-pointer hover:opacity-80"
                 onClick={() => userType === 'farmer' && navigate('/farmer-dashboard')}
               >
-                {userType === 'farmer' ? '🧑‍🌾 Farmer' : '🛒 Customer'}
+                {userType === 'farmer' ? `🧑‍🌾 ${t('header.farmer')}` : `🛒 ${t('header.customer')}`}
               </Badge>
             )}
 
@@ -88,7 +93,7 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
             <Button variant="ghost" size="sm" onClick={handleAuthClick}>
               <User className="w-5 h-5" />
               <span className="ml-2 hidden sm:inline">
-                {user ? 'Logout' : 'Login'}
+                {user ? t('common.logout') : t('common.login')}
               </span>
             </Button>
           </div>
@@ -100,7 +105,7 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
               type="text"
-              placeholder="Search for fresh vegetables, fruits, grains..."
+              placeholder={t('header.searchPlaceholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -108,21 +113,28 @@ const Header = ({ cartItems = 0, userType = null, onSearch, onCategorySelect }: 
             />
           </div>
           <Button className="px-8 py-6 gradient-hero" onClick={handleSearch}>
-            Search
+            {t('common.search')}
           </Button>
         </div>
 
         {/* Quick categories */}
         <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
-          {['🍅 Vegetables', '🥭 Fruits', '🌾 Grains', '🥛 Dairy', '🌶️ Spices', '🫘 Pulses'].map((category) => (
+          {[
+            { key: 'vegetables', emoji: '🍅', label: t('products.categories.vegetables') },
+            { key: 'fruits', emoji: '🥭', label: t('products.categories.fruits') },
+            { key: 'grains', emoji: '🌾', label: t('products.categories.grains') },
+            { key: 'dairy', emoji: '🥛', label: t('products.categories.dairy') },
+            { key: 'spices', emoji: '🌶️', label: t('products.categories.spices') },
+            { key: 'pulses', emoji: '🫘', label: t('products.categories.pulses') },
+          ].map((category) => (
             <Button
-              key={category}
+              key={category.key}
               variant="outline"
               size="sm"
               className="whitespace-nowrap transition-smooth hover:bg-primary hover:text-primary-foreground"
-              onClick={() => handleCategoryClick(category.split(' ')[1])}
+              onClick={() => handleCategoryClick(category.key)}
             >
-              {category}
+              {category.emoji} {category.label}
             </Button>
           ))}
         </div>

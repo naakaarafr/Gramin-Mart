@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/hooks/useTranslation";
 import heroImage from "@/assets/hero-marketplace.jpg";
 import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleShopNow = () => {
