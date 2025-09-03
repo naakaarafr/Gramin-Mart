@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { AlertCircle } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -19,6 +20,7 @@ const Auth = () => {
   
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,21 +61,21 @@ const Auth = () => {
             <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-primary-foreground font-bold text-xl">🌾</span>
             </div>
-            <h1 className="text-2xl font-bold text-primary">Kisan Marketplace</h1>
+            <h1 className="text-2xl font-bold text-primary">{t('header.title')}</h1>
           </div>
           <p className="text-muted-foreground">Connect with farmers across India</p>
         </div>
 
         <Tabs defaultValue="signin" className="space-y-4">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="signin">{t('common.login')}</TabsTrigger>
+            <TabsTrigger value="signup">{t('common.signup')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
             <Card>
               <CardHeader>
-                <CardTitle>Welcome Back</CardTitle>
+                <CardTitle>{t('auth.welcomeBack')}</CardTitle>
                 <CardDescription>
                   Sign in to your account to continue shopping
                 </CardDescription>
@@ -81,7 +83,7 @@ const Auth = () => {
               <form onSubmit={handleSignIn}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-email">{t('auth.email')}</Label>
                     <Input
                       id="signin-email"
                       type="email"
@@ -92,7 +94,7 @@ const Auth = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
+                    <Label htmlFor="signin-password">{t('auth.password')}</Label>
                     <Input
                       id="signin-password"
                       type="password"
@@ -110,7 +112,7 @@ const Auth = () => {
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Signing in...' : 'Sign In'}
+                    {loading ? 'Signing in...' : t('common.login')}
                   </Button>
                 </CardFooter>
               </form>
@@ -120,7 +122,7 @@ const Auth = () => {
           <TabsContent value="signup">
             <Card>
               <CardHeader>
-                <CardTitle>Join Kisan Marketplace</CardTitle>
+                <CardTitle>{t('auth.createAccount')}</CardTitle>
                 <CardDescription>
                   Create your account and start connecting with farmers
                 </CardDescription>
@@ -128,7 +130,7 @@ const Auth = () => {
               <form onSubmit={handleSignUp}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>I am a</Label>
+                    <Label>{t('auth.userType')}</Label>
                     <div className="flex gap-2">
                       <Button
                         type="button"
@@ -136,7 +138,7 @@ const Auth = () => {
                         onClick={() => setUserType('customer')}
                         className="flex-1"
                       >
-                        🛒 Customer
+                        🛒 {t('auth.customer')}
                       </Button>
                       <Button
                         type="button"
@@ -144,7 +146,7 @@ const Auth = () => {
                         onClick={() => setUserType('farmer')}
                         className="flex-1"
                       >
-                        🧑‍🌾 Farmer
+                        🧑‍🌾 {t('auth.farmer')}
                       </Button>
                     </div>
                   </div>
@@ -190,7 +192,7 @@ const Auth = () => {
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? 'Creating account...' : 'Create Account'}
+                    {loading ? 'Creating account...' : t('auth.createAccount')}
                   </Button>
                 </CardFooter>
               </form>

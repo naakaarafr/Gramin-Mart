@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Truck, Shield, Headphones, Award, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Product {
   id: string;
@@ -37,6 +38,7 @@ const Index = () => {
   const { addToCart, totalItems } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   // Fetch products from Supabase
   useEffect(() => {
@@ -175,29 +177,29 @@ const Index = () => {
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
                   <Truck className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="font-semibold">Free Delivery</h3>
-                <p className="text-sm text-muted-foreground">On orders above ₹500</p>
+                <h3 className="font-semibold">{t('features.freeDelivery')}</h3>
+                <p className="text-sm text-muted-foreground">{t('features.freeDeliveryDesc')}</p>
               </div>
               <div className="text-center space-y-3">
                 <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto">
                   <Shield className="w-8 h-8 text-secondary" />
                 </div>
-                <h3 className="font-semibold">Fresh Guarantee</h3>
-                <p className="text-sm text-muted-foreground">100% fresh or money back</p>
+                <h3 className="font-semibold">{t('features.freshGuarantee')}</h3>
+                <p className="text-sm text-muted-foreground">{t('features.freshGuaranteeDesc')}</p>
               </div>
               <div className="text-center space-y-3">
                 <div className="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto">
                   <Headphones className="w-8 h-8 text-accent-foreground" />
                 </div>
-                <h3 className="font-semibold">24/7 Support</h3>
-                <p className="text-sm text-muted-foreground">In Hindi, English & regional languages</p>
+                <h3 className="font-semibold">{t('features.support')}</h3>
+                <p className="text-sm text-muted-foreground">{t('features.supportDesc')}</p>
               </div>
               <div className="text-center space-y-3">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
                   <Award className="w-8 h-8 text-primary" />
                 </div>
-                <h3 className="font-semibold">Verified Farmers</h3>
-                <p className="text-sm text-muted-foreground">All farmers verified with Aadhaar</p>
+                <h3 className="font-semibold">{t('features.verifiedFarmers')}</h3>
+                <p className="text-sm text-muted-foreground">{t('features.verifiedFarmersDesc')}</p>
               </div>
             </div>
           </div>
@@ -207,32 +209,32 @@ const Index = () => {
         <section className="py-16" data-section="products">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4">Fresh from Farms</h2>
-              <p className="text-muted-foreground">Discover fresh produce directly from verified farmers across India</p>
+              <h2 className="text-3xl font-bold mb-4">{t('products.title')}</h2>
+              <p className="text-muted-foreground">{t('products.description')}</p>
             </div>
 
             {/* Category Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
               <TabsList className="grid w-full grid-cols-3 md:grid-cols-7 bg-muted/50">
-                <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="vegetables">Vegetables</TabsTrigger>
-                <TabsTrigger value="fruits">Fruits</TabsTrigger>
-                <TabsTrigger value="grains">Grains</TabsTrigger>
-                <TabsTrigger value="dairy">Dairy</TabsTrigger>
-                <TabsTrigger value="spices">Spices</TabsTrigger>
-                <TabsTrigger value="pulses">Pulses</TabsTrigger>
+                <TabsTrigger value="all">{t('products.categories.all')}</TabsTrigger>
+                <TabsTrigger value="vegetables">{t('products.categories.vegetables')}</TabsTrigger>
+                <TabsTrigger value="fruits">{t('products.categories.fruits')}</TabsTrigger>
+                <TabsTrigger value="grains">{t('products.categories.grains')}</TabsTrigger>
+                <TabsTrigger value="dairy">{t('products.categories.dairy')}</TabsTrigger>
+                <TabsTrigger value="spices">{t('products.categories.spices')}</TabsTrigger>
+                <TabsTrigger value="pulses">{t('products.categories.pulses')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value={activeTab} className="mt-8">
                 {loading ? (
                   <div className="text-center py-12">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-primary" />
-                    <p className="text-muted-foreground text-lg">Loading fresh products...</p>
+                    <p className="text-muted-foreground text-lg">{t('common.loading')}</p>
                   </div>
                 ) : filteredProducts.length === 0 ? (
                   <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg">
-                      {products.length === 0 ? "No products available yet. Be the first farmer to add products!" : "No products found matching your search."}
+                      {products.length === 0 ? t('products.noProducts') : t('products.noSearchResults')}
                     </p>
                   </div>
                 ) : (
@@ -270,7 +272,7 @@ const Index = () => {
             {filteredProducts.length > visibleProducts && (
               <div className="text-center mt-12">
                 <Button variant="outline" size="lg" onClick={handleLoadMore}>
-                  Load More Products ({filteredProducts.length - visibleProducts} remaining)
+                  Load More Products ({filteredProducts.length - visibleProducts} {t('products.remaining')})
                 </Button>
               </div>
             )}
@@ -285,9 +287,9 @@ const Index = () => {
                 <Badge className="mb-4 bg-green-600 text-white">
                   🌱 Farmer Dashboard
                 </Badge>
-                <h2 className="text-3xl font-bold mb-6">Quick Actions</h2>
+                <h2 className="text-3xl font-bold mb-6">{t('farmer.quickActions')}</h2>
                 <p className="text-muted-foreground mb-8">
-                  Manage your products and grow your business directly from here.
+                  {t('farmer.manageBusiness')}
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <Button 
@@ -297,7 +299,7 @@ const Index = () => {
                     onClick={() => navigate('/farmer-dashboard')}
                   >
                     <span className="text-2xl">📊</span>
-                    View Dashboard
+                    {t('farmer.viewDashboard')}
                   </Button>
                   <Button 
                     variant="secondary" 
@@ -309,7 +311,7 @@ const Index = () => {
                     }}
                   >
                     <span className="text-2xl">➕</span>
-                    Add New Product
+                    {t('farmer.addProduct')}
                   </Button>
                   <Button 
                     variant="outline" 
@@ -321,7 +323,7 @@ const Index = () => {
                     }}
                   >
                     <span className="text-2xl">📈</span>
-                    View Analytics
+                    {t('farmer.viewAnalytics')}
                   </Button>
                 </div>
               </div>
@@ -366,19 +368,18 @@ const Index = () => {
                 <span className="font-bold text-lg">Kisan Marketplace</span>
               </div>
               <p className="text-primary-foreground/80 text-sm">
-                Connecting farmers directly with customers across India. 
-                Fresh produce, fair prices, no middlemen.
+                {t('footer.description')}
               </p>
             </div>
             <div className="space-y-4">
-              <h3 className="font-semibold">For Customers</h3>
+              <h3 className="font-semibold">{t('footer.forCustomers')}</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
                 <li className="cursor-pointer hover:text-primary-foreground" onClick={() => {
                   const productsSection = document.querySelector('[data-section="products"]');
                   if (productsSection) {
                     productsSection.scrollIntoView({ behavior: 'smooth' });
                   }
-                }}>Browse Products</li>
+                }}>{t('footer.browseProducts')}</li>
                 <li className="cursor-pointer hover:text-primary-foreground" onClick={() => navigate('/cart')}>Track Orders</li>
                 <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
                   title: "Customer Support",
@@ -391,7 +392,7 @@ const Index = () => {
               </ul>
             </div>
             <div className="space-y-4">
-              <h3 className="font-semibold">For Farmers</h3>
+              <h3 className="font-semibold">{t('footer.forFarmers')}</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
                 <li className="cursor-pointer hover:text-primary-foreground" onClick={() => navigate('/auth')}>Join as Farmer</li>
                 <li className="cursor-pointer hover:text-primary-foreground" onClick={() => navigate('/auth')}>Sell Products</li>
@@ -403,7 +404,7 @@ const Index = () => {
               </ul>
             </div>
             <div className="space-y-4">
-              <h3 className="font-semibold">Support</h3>
+              <h3 className="font-semibold">{t('footer.support')}</h3>
               <ul className="space-y-2 text-sm text-primary-foreground/80">
                 <li className="cursor-pointer hover:text-primary-foreground" onClick={() => toast({
                   title: "Help Center",

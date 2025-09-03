@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Product {
   id: string;
@@ -33,6 +34,7 @@ interface ProductFormProps {
 
 const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAndViewDashboard }: ProductFormProps) => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -131,7 +133,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
       if (error) throw error;
 
       toast({
-        title: "Success",
+        title: t('common.success'),
         description: `Product ${product ? 'updated' : 'created'} successfully`
       });
 
@@ -161,7 +163,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
     } catch (error) {
       console.error('Error saving product:', error);
       toast({
-        title: "Error",
+        title: t('common.error'),
         description: `Failed to ${product ? 'update' : 'create'} product`,
         variant: "destructive"
       });
@@ -174,7 +176,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="name">Product Name *</Label>
+          <Label htmlFor="name">{t('products.productName')} *</Label>
           <Input
             id="name"
             value={formData.name}
@@ -185,15 +187,15 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="category">Category *</Label>
+          <Label htmlFor="category">{t('products.category')} *</Label>
           <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select category" />
+              <SelectValue placeholder={t('products.selectCategory')} />
             </SelectTrigger>
             <SelectContent>
               {categories.map((category) => (
                 <SelectItem key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                  {t(`products.categories.${category}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -201,7 +203,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="price">Price *</Label>
+          <Label htmlFor="price">{t('products.price')} *</Label>
           <Input
             id="price"
             type="number"
@@ -214,10 +216,10 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="unit">Unit *</Label>
+          <Label htmlFor="unit">{t('products.unit')} *</Label>
           <Select value={formData.unit} onValueChange={(value) => handleInputChange('unit', value)}>
             <SelectTrigger>
-              <SelectValue placeholder="Select unit" />
+              <SelectValue placeholder={t('products.selectUnit')} />
             </SelectTrigger>
             <SelectContent>
               {units.map((unit) => (
@@ -230,7 +232,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="quantity">Quantity Available *</Label>
+          <Label htmlFor="quantity">{t('products.quantityAvailable')} *</Label>
           <Input
             id="quantity"
             type="number"
@@ -242,7 +244,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="image_url">Image URL</Label>
+          <Label htmlFor="image_url">{t('products.imageUrl')}</Label>
           <Input
             id="image_url"
             type="url"
@@ -253,7 +255,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="harvest_date">Harvest Date</Label>
+          <Label htmlFor="harvest_date">{t('products.harvestDate')}</Label>
           <Input
             id="harvest_date"
             type="date"
@@ -263,7 +265,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="expiry_date">Expiry Date</Label>
+          <Label htmlFor="expiry_date">{t('products.expiryDate')}</Label>
           <Input
             id="expiry_date"
             type="date"
@@ -273,33 +275,33 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="farmer_name">Your Name</Label>
+          <Label htmlFor="farmer_name">{t('products.farmerName')}</Label>
           <Input
             id="farmer_name"
             value={formData.farmer_name}
             onChange={(e) => handleInputChange('farmer_name', e.target.value)}
-            placeholder="Your farmer name"
+            placeholder={t('products.yourFarmerName')}
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="farmer_location">Farm Location</Label>
+          <Label htmlFor="farmer_location">{t('products.farmLocation')}</Label>
           <Input
             id="farmer_location"
             value={formData.farmer_location}
             onChange={(e) => handleInputChange('farmer_location', e.target.value)}
-            placeholder="e.g., Your City, Your State"
+            placeholder={t('products.farmLocationPlaceholder')}
           />
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">{t('products.description')}</Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => handleInputChange('description', e.target.value)}
-          placeholder="Describe your product, quality, farming methods, etc."
+          placeholder={t('products.descriptionPlaceholder')}
           rows={3}
         />
       </div>
@@ -310,7 +312,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
           checked={formData.organic}
           onCheckedChange={(checked) => handleInputChange('organic', checked)}
         />
-        <Label htmlFor="organic">Organic Product</Label>
+        <Label htmlFor="organic">{t('products.organicProduct')}</Label>
       </div>
 
       <div className="flex flex-col gap-4 pt-4">
@@ -322,7 +324,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
             className="flex-1"
             onClick={(e) => handleSubmit(e, 'save')}
           >
-            {loading ? 'Saving...' : (product ? 'Update Product' : 'Save Product')}
+            {loading ? t('common.loading') : (product ? t('common.edit') : t('common.save'))}
           </Button>
           {!product && onSaveAndAddAnother && (
             <Button 
@@ -340,7 +342,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
                 }
               }}
             >
-              Save & Add Another
+              {t('products.saveAndAddAnother')}
             </Button>
           )}
         </div>
@@ -348,7 +350,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
         {/* Secondary action buttons */}
         <div className="flex gap-3">
           <Button type="button" variant="outline" onClick={onCancel} className="flex-1">
-            Cancel
+            {t('common.cancel')}
           </Button>
           {onSaveAndViewDashboard && (
             <Button 
@@ -366,7 +368,7 @@ const ProductForm = ({ product, onSave, onCancel, onSaveAndAddAnother, onSaveAnd
                 }
               }}
             >
-              Save & View Dashboard
+              {t('products.saveAndViewDashboard')}
             </Button>
           )}
         </div>

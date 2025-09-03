@@ -10,12 +10,14 @@ import { Separator } from '@/components/ui/separator';
 import { MapPin, Minus, Plus, ShoppingBag, Trash2, CreditCard } from 'lucide-react';
 import Header from '@/components/Header';
 import { toast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const Cart = () => {
   const { items, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const { t } = useTranslation();
 
   const handleCheckout = async () => {
     if (items.length === 0) {
@@ -67,13 +69,12 @@ const Cart = () => {
         <main className="container mx-auto px-4 py-16">
           <div className="text-center max-w-md mx-auto">
             <ShoppingBag className="w-20 h-20 text-muted-foreground mx-auto mb-6" />
-            <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('cart.empty')}</h2>
             <p className="text-muted-foreground mb-8">
-              Looks like you haven't added any fresh produce to your cart yet. 
-              Start shopping for farm-fresh products!
+              {t('cart.startShopping')}
             </p>
             <Button onClick={() => navigate('/')} variant="hero" size="lg">
-              🛒 Start Shopping
+              🛒 {t('cart.continueShopping')}
             </Button>
           </div>
         </main>
@@ -89,10 +90,10 @@ const Cart = () => {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold">Shopping Cart</h1>
+              <h1 className="text-2xl font-bold">{t('cart.title')}</h1>
               <Button variant="outline" size="sm" onClick={clearCart}>
                 <Trash2 className="w-4 h-4 mr-2" />
-                Clear Cart
+                {t('common.remove')}
               </Button>
             </div>
 
@@ -165,7 +166,7 @@ const Cart = () => {
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
+                <CardTitle>{t('cart.total')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between">
@@ -198,12 +199,12 @@ const Cart = () => {
                   ) : (
                     <>
                       <CreditCard className="w-4 h-4 mr-2" />
-                      Proceed to Checkout
+                      {t('cart.proceedToCheckout')}
                     </>
                   )}
                 </Button>
                 <Button variant="outline" className="w-full" onClick={() => navigate('/')}>
-                  Continue Shopping
+                  {t('cart.continueShopping')}
                 </Button>
               </CardFooter>
             </Card>
@@ -213,8 +214,8 @@ const Cart = () => {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span className="text-lg">🚛</span>
                   <div>
-                    <div className="font-medium text-foreground">Free Delivery</div>
-                    <div>On orders above ₹500</div>
+                    <div className="font-medium text-foreground">{t('features.freeDelivery')}</div>
+                    <div>{t('features.freeDeliveryDesc')}</div>
                   </div>
                 </div>
               </CardContent>

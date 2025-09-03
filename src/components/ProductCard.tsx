@@ -2,6 +2,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, MapPin, Heart, ShoppingCart } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProductCardProps {
   id: string;
@@ -36,6 +37,7 @@ const ProductCard = ({
   onAddToCart,
   onToggleWishlist,
 }: ProductCardProps) => {
+  const { t } = useTranslation();
   return (
     <Card className="group hover:shadow-product transition-smooth bg-card border-border overflow-hidden">
       {/* Product Image */}
@@ -50,7 +52,7 @@ const ProductCard = ({
         <div className="absolute top-3 left-3 flex flex-col gap-1">
           {organic && (
             <Badge className="bg-accent text-accent-foreground text-xs">
-              🌱 Organic
+              🌱 {t('products.organic')}
             </Badge>
           )}
           <Badge variant="secondary" className="text-xs">
@@ -71,7 +73,7 @@ const ProductCard = ({
         {/* Out of stock overlay */}
         {!inStock && (
           <div className="absolute inset-0 bg-muted/80 flex items-center justify-center">
-            <Badge variant="destructive">Out of Stock</Badge>
+            <Badge variant="destructive">{t('products.outOfStock')}</Badge>
           </div>
         )}
       </div>
@@ -119,7 +121,7 @@ const ProductCard = ({
           onClick={() => onAddToCart?.(id)}
         >
           <ShoppingCart className="w-4 h-4 mr-2" />
-          Add to Cart
+          {t('products.addToCart')}
         </Button>
       </CardFooter>
     </Card>

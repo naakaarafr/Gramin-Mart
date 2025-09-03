@@ -10,6 +10,7 @@ import { toast } from "@/hooks/use-toast";
 import ProductForm from "@/components/ProductForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface Product {
   id: string;
@@ -30,6 +31,7 @@ const FarmerDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProductForm, setShowProductForm] = useState(false);
@@ -314,8 +316,8 @@ const FarmerDashboard = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Farmer Dashboard</h1>
-            <p className="text-muted-foreground">Manage your products and track your farm business</p>
+            <h1 className="text-3xl font-bold text-foreground">{t('farmer.dashboard')}</h1>
+            <p className="text-muted-foreground">{t('farmer.manageBusiness')}</p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -324,7 +326,7 @@ const FarmerDashboard = () => {
               className="flex items-center gap-2"
             >
               <Eye className="w-4 h-4" />
-              {showAnalytics ? 'View Dashboard' : 'View Analytics'}
+              {showAnalytics ? t('farmer.viewDashboard') : t('farmer.viewAnalytics')}
             </Button>
             <Button
               variant="outline"
@@ -332,14 +334,14 @@ const FarmerDashboard = () => {
               className="flex items-center gap-2"
             >
               <Home className="w-4 h-4" />
-              Exit Dashboard
+              {t('farmer.exitDashboard')}
             </Button>
             <Button 
               onClick={() => setShowProductForm(true)}
               className="gradient-hero"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add New Product
+              {t('farmer.addProduct')}
             </Button>
           </div>
         </div>
@@ -348,7 +350,7 @@ const FarmerDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('farmer.totalProducts')}</CardTitle>
               <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -358,7 +360,7 @@ const FarmerDashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('farmer.inventoryValue')}</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -368,7 +370,7 @@ const FarmerDashboard = () => {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Low Stock Items</CardTitle>
+              <CardTitle className="text-sm font-medium">{t('farmer.lowStockItems')}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
