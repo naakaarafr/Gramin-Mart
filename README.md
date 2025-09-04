@@ -103,8 +103,8 @@ git --version
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/naakaarafr/gramin-mart.git
-   cd gramin-mart
+   git clone https://github.com/naakaarafr/Gramin-Mart.git
+   cd Gramin-Mart
    ```
 
 2. **Install dependencies**
@@ -310,10 +310,6 @@ We welcome contributions from the community! Here's how you can help:
 - Use GitHub Issues to report bugs or request features
 - Provide detailed descriptions and reproduction steps
 - Include screenshots for UI-related issues
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support
 
