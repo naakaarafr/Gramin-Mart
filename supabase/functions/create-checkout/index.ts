@@ -24,6 +24,8 @@ interface CartItem {
 interface CheckoutRequest {
   items: CartItem[];
   totalPrice: number;
+  deliveryCost: number;
+  finalTotal: number;
   deliveryAddress?: {
     street: string;
     city: string;
@@ -75,13 +77,13 @@ serve(async (req) => {
     }
 
     // Parse request body
-    const { items, totalPrice, deliveryAddress }: CheckoutRequest = await req.json();
+    const { items, totalPrice, deliveryCost, finalTotal, deliveryAddress }: CheckoutRequest = await req.json();
     
     if (!items || items.length === 0) {
       throw new Error("No items in cart");
     }
 
-    console.log(`🛍️ Processing ${items.length} items for total ₹${totalPrice}`);
+    console.log(`🛍️ Processing ${items.length} items for ₹${totalPrice} + delivery ₹${deliveryCost} = ₹${finalTotal}`);
 
     // Initialize Stripe
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
@@ -107,7 +109,7 @@ serve(async (req) => {
     const orderData = {
       user_id: user?.id || null,
       customer_email: userEmail,
-      total_amount: totalPrice,
+      total_amount: finalTotal,
       currency: 'inr',
       status: 'pending',
       delivery_address: deliveryAddress || null,
@@ -169,6 +171,21 @@ serve(async (req) => {
       },
       quantity: item.quantity,
     }));
+
+    // Add delivery charge as a line item if applicable
+    if (deliveryCost > 0) {
+      lineItems.push({
+        price_data: {
+          currency: 'inr',
+          product_data: {
+            name: 'Delivery Charges',
+            description: 'Home delivery service',
+          },
+          unit_amount: Math.round(deliveryCost * 100), // Convert to paise
+        },
+        quantity: 1,
+      });
+    }
 
     // Create checkout session
     const session = await stripe.checkout.sessions.create({

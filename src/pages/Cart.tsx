@@ -18,6 +18,10 @@ const Cart = () => {
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { t } = useTranslation();
+  
+  // Calculate delivery cost - free for orders ₹500 and above, ₹50 otherwise
+  const deliveryCost = totalPrice >= 500 ? 0 : 50;
+  const finalTotal = totalPrice + deliveryCost;
 
   const handleCheckout = async () => {
     if (items.length === 0) {
@@ -36,6 +40,8 @@ const Cart = () => {
         body: {
           items: items,
           totalPrice: totalPrice,
+          deliveryCost: deliveryCost,
+          finalTotal: finalTotal,
           deliveryAddress: null // Will be collected in Stripe Checkout
         }
       });
@@ -175,12 +181,16 @@ const Cart = () => {
                 </div>
                 <div className="flex justify-between">
                   <span>Delivery</span>
-                  <Badge variant="secondary">FREE</Badge>
+                  {deliveryCost === 0 ? (
+                    <Badge variant="secondary">FREE</Badge>
+                  ) : (
+                    <span>₹{deliveryCost.toFixed(2)}</span>
+                  )}
                 </div>
                 <Separator />
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span className="text-primary">₹{totalPrice.toFixed(2)}</span>
+                  <span className="text-primary">₹{finalTotal.toFixed(2)}</span>
                 </div>
               </CardContent>
               <CardFooter className="flex-col gap-3">
@@ -214,8 +224,15 @@ const Cart = () => {
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <span className="text-lg">🚛</span>
                   <div>
-                    <div className="font-medium text-foreground">{t('features.freeDelivery')}</div>
-                    <div>{t('features.freeDeliveryDesc')}</div>
+                    <div className="font-medium text-foreground">
+                      {deliveryCost === 0 ? 'Free Delivery!' : 'Delivery Charges Apply'}
+                    </div>
+                    <div>
+                      {deliveryCost === 0 
+                        ? 'Your order qualifies for free delivery' 
+                        : `Add ₹${(500 - totalPrice).toFixed(2)} more for free delivery`
+                      }
+                    </div>
                   </div>
                 </div>
               </CardContent>
