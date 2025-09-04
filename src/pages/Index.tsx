@@ -365,7 +365,7 @@ const Index = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🌾</span>
-                <span className="font-bold text-lg">Kisan Marketplace</span>
+                <span className="font-bold text-lg">Gramin Mart</span>
               </div>
               <p className="text-primary-foreground/80 text-sm">
                 {t('footer.description')}
@@ -426,7 +426,7 @@ const Index = () => {
             </div>
           </div>
           <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-sm text-primary-foreground/80">
-            © 2024 Kisan Marketplace. Made with ❤️ for Indian farmers.
+            © 2024 Gramin Mart. Made with ❤️ for Indian farmers.
           </div>
         </div>
       </footer>
