@@ -34,8 +34,10 @@ const Cart = () => {
     }
 
     setIsCheckingOut(true);
+    console.log('Starting checkout process...', { items, totalPrice, deliveryCost, finalTotal });
 
     try {
+      console.log('Invoking create-checkout function...');
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
           items: items,
@@ -46,14 +48,19 @@ const Cart = () => {
         }
       });
 
+      console.log('Create-checkout response:', { data, error });
+
       if (error) {
+        console.error('Create-checkout error:', error);
         throw error;
       }
 
       if (data?.url) {
+        console.log('Redirecting to Stripe checkout:', data.url);
         // Open Stripe checkout in a new tab
         window.open(data.url, '_blank');
       } else {
+        console.error('No checkout URL received in response:', data);
         throw new Error('No checkout URL received');
       }
     } catch (error) {
